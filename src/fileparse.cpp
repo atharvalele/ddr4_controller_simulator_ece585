@@ -20,11 +20,13 @@ void read_file(std::ifstream &cmd_file)
     std::string ip_string;
     std::string tokens[3];
     uint8_t token_count = 0;
+    bool token_valid {false};
 
     // Traverse the line and get 3 tokens
     while (std::getline(cmd_file, ip_string)) {
         pos = 0;
         token_count = 0;
+        token_valid = false;
         
         while (pos < ip_string.length()-1) {
             // Find the first non-whitespace character
@@ -44,14 +46,15 @@ void read_file(std::ifstream &cmd_file)
                 tokens[token_count] = ip_string.substr(substr_begin, substr_end - substr_begin);
                 //std::cout << "Begin: " << substr_begin << " End: " << substr_end << std::endl;
                 //std::cout << tokens[token_count] << std::endl;
+
+                token_count++;
+                token_valid = true;
             }
             else {
-                std::cout << "File over!";
-                exit(1);
+                break;
             }
 
             // Invalid input checking
-            token_count++;
             if (token_count > 3) {
                 std::cerr << "Invalid input! - " << ip_string << std::endl;
                 exit(1);
@@ -70,7 +73,8 @@ void read_file(std::ifstream &cmd_file)
         else
             op = "UNKNOWN";
 
-        std::cout << "CPU Req Time: " << tokens[0] << "\tType: " << op << "\tAddress: " << tokens[2] << std::endl;
+        if (token_valid)
+            std::cout << "CPU Req Time: " << tokens[0] << "\tType: " << op << "\tAddress: " << tokens[2] << std::endl;
         #endif
     }
 }
