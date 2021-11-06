@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 
+#include "fileparse.h"
+
 int main(int argc, char *argv[])
 {
     // Input Trace File
@@ -27,6 +29,7 @@ int main(int argc, char *argv[])
     }
 
     // Add loop here for RAM events
+    read_file(*ip_trace_fstream);
 
     // Free the filestream heap
     delete ip_trace_fstream;

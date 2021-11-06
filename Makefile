@@ -22,7 +22,7 @@ DEPS	:= $(OBJS:.o=.d)
 
 # Compiler
 CXX			= g++
-CXXFLAGS 	= -Wall -Werror
+CXXFLAGS 	= -Wall -Werror -std=c++11
 
 # Build Recipies
 all: build $(TARGET)
