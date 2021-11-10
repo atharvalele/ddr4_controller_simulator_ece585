@@ -1,6 +1,8 @@
 #ifndef __COMMONDEF_H__
 #define __COMMONDEF_H__
 
+#include <ostream>
+
 // Memory request type enumerator
 enum REQ_OP
 {
@@ -9,7 +11,8 @@ enum REQ_OP
     FETCH
 };
 
-std::ostream& operator<<(std::ostream& os, REQ_OP req)
+// Overload for REQ_OP cout
+inline std::ostream& operator<<(std::ostream& os, REQ_OP req)
 {
     switch (req)
     {
