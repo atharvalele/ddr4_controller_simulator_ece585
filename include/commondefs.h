@@ -3,6 +3,12 @@
 
 #include <ostream>
 
+// CPU Clock Frequency (MHz)
+constexpr uint16_t CPU_CLK_FREQ = 3200;
+
+// CPU Clock tick counter
+extern uint64_t cpu_clock_tick;
+
 // Memory request type enumerator
 enum REQ_OP
 {
