@@ -10,7 +10,7 @@ class DRAM {
 private:
     /* DRAM Clock Cycles */
     uint64_t clock_tick = 0;
-
+    
     /* Queue */
     static constexpr uint8_t QUEUE_SIZE = 16;
     std::vector<request> req_queue;
@@ -35,11 +35,17 @@ private:
     // Add refresh time here
 
 public:
+    /* DRAM Clock Freq (MHz) */
+    static constexpr uint16_t DRAM_CLK_FREQ = 1600;
+
     /* Queue Methods */
     void queue_add(request req);
     void queue_remove();
     bool is_queue_empty();
     bool is_queue_full();
+
+    /* RAM Operation */
+    void do_ram_things();
 };
 
 #endif

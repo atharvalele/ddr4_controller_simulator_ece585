@@ -5,7 +5,7 @@ void DRAM::queue_add(request req)
 {
     if (req_queue.size() < QUEUE_SIZE) {
         req_queue.push_back(req);
-        std::cout << req << std::endl;
+        std::cout << "Added to Queue: " << req << std::endl;
     } else {
         std::cout << "Queue Full" << std::endl;
     }
@@ -14,7 +14,10 @@ void DRAM::queue_add(request req)
 /* Remove element from the queue */
 void DRAM::queue_remove()
 {
-    std::cout << "Removed from queue!\n";
+    if (!is_queue_empty()) {
+        std::cout << "Removed from Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req_queue.front() << std::endl;
+        req_queue.erase(req_queue.begin());
+    }
 }
 
 /* Is queue empty? */
@@ -27,4 +30,20 @@ bool DRAM::is_queue_empty()
 bool DRAM::is_queue_full()
 {
     return (req_queue.size() == QUEUE_SIZE);
+}
+
+/* DRAM operation */
+void DRAM::do_ram_things()
+{
+    /* Increment Clock */
+    clock_tick++;
+
+    /* Increment time in queue for all */
+    for (auto &r: req_queue)
+        r.q_time++;
+
+    if (cpu_clock_tick % 100 == 0) {
+        queue_remove();
+    }
+
 }
