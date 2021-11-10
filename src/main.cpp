@@ -2,8 +2,12 @@
 #include <fstream>
 #include <string>
 
+#include "commondefs.h"
 #include "dram.h"
 #include "fileparse.h"
+
+// CPU clock ticker
+uint64_t cpu_clock_tick = 0;
 
 int main(int argc, char *argv[])
 {
@@ -36,15 +40,22 @@ int main(int argc, char *argv[])
     
     // Start DRAM Controller loop
     while (true) {
+        // Increment CPU Clock
+        cpu_clock_tick++;
+
         // Check if we can read in a request
         if (dram_controller.is_queue_full() == false) {
-            std::getline(*ip_trace_fstream, ip_string);
-            req = read_file(ip_string);
-            dram_controller.queue_add(req);
+            if (std::getline(*ip_trace_fstream, ip_string)) {
+                req = read_file(ip_string);
+                dram_controller.queue_add(req);
+            }
         } else {
-            std::cout << "Queue FULL!" << std::endl;
-            break;
+            // std::cout << "Queue FULL!" << std::endl;
         }
+
+        // Do RAM operations every n-th tick since DRAM clock is slower than CPU clock
+        if (cpu_clock_tick % (CPU_CLK_FREQ / dram_controller.DRAM_CLK_FREQ) == 0)
+            dram_controller.do_ram_things();
     }
 
     // Free the filestream heap
