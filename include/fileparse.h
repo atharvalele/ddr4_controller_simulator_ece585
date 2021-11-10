@@ -1,6 +1,8 @@
 #ifndef __FILEPARSE_H__
 #define __FILEPARSE_H__
 
-void read_file(std::ifstream &cmd_file);
+#include "request.h"
+
+request read_file(std::string ip_string);
 
 #endif
