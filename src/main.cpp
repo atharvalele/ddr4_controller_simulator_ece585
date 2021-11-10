@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 
+#include "dram.h"
 #include "fileparse.h"
 
 int main(int argc, char *argv[])
@@ -9,6 +10,7 @@ int main(int argc, char *argv[])
     // Input Trace File
     std::string ip_trace_name;
     std::ifstream *ip_trace_fstream;
+    std::string ip_string;
 
     // Check if input trace file is provided
     // First argument is always executable name
@@ -28,8 +30,22 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Add loop here for RAM events
-    read_file(*ip_trace_fstream);
+    // Instantiate DRAM Controller
+    DRAM dram_controller;
+    request req; 
+    
+    // Start DRAM Controller loop
+    while (true) {
+        // Check if we can read in a request
+        if (dram_controller.is_queue_full() == false) {
+            std::getline(*ip_trace_fstream, ip_string);
+            req = read_file(ip_string);
+            dram_controller.queue_add(req);
+        } else {
+            std::cout << "Queue FULL!" << std::endl;
+            break;
+        }
+    }
 
     // Free the filestream heap
     delete ip_trace_fstream;
