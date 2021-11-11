@@ -47,5 +47,5 @@ with open(filename, 'w') as f:
 
         f.write('\n')
 
-        # Increase ticks
-        cpu_tick = cpu_tick + 1
+        # Increase ticks - by anywhere from 0 to 20 cycles
+        cpu_tick = cpu_tick + random.randint(0, 20)
