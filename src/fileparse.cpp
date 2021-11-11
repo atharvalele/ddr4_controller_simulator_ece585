@@ -62,6 +62,7 @@ request read_file(std::string ip_string)
     }
 
     // Get the data into variables
+    req.cpu_req_time = std::stoull(tokens[0], nullptr);
     req.q_time = 0;
     req.req_type = (REQ_OP)std::stoi(tokens[1], nullptr);
     req.address = std::stoull(tokens[2], nullptr, 16);
