@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
                 req = read_file(ip_string);
                 dram_controller.queue_add(req);
             }
+            if(dram_controller.is_queue_empty() && !(*ip_trace_fstream))
+                break;
         } else {
             // std::cout << "Queue FULL!" << std::endl;
         }
