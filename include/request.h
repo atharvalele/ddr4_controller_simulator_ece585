@@ -8,6 +8,8 @@
 // Class for the request queue
 class request {
 public:
+    // CPU time at which memory request was made
+    uint64_t cpu_req_time;
     // Time spent by request in queue
     uint64_t q_time;
     // READ/WRITE/FETCH
