@@ -5,7 +5,7 @@ void DRAM::queue_add(request req)
 {
     if (req_queue.size() < QUEUE_SIZE) {
         req_queue.push_back(req);
-        std::cout << "Added to Queue: " << req << std::endl;
+        std::cout << "Added to Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req << std::endl;
     } else {
         std::cout << "Queue Full" << std::endl;
     }
@@ -42,8 +42,10 @@ void DRAM::do_ram_things()
     for (auto &r: req_queue)
         r.q_time++;
 
-    if (cpu_clock_tick % 100 == 0) {
-        queue_remove();
+    /* Remove once an item is present for a 100 CPU clocks */
+    for (auto &r: req_queue) {
+        if (r.q_time >= 100 / (CPU_CLK_FREQ / DRAM_CLK_FREQ) ) {
+            queue_remove();
+        }
     }
-
 }
