@@ -15,7 +15,6 @@ int main(int argc, char *argv[])
     std::string ip_trace_name;
     std::ifstream *ip_trace_fstream;
     std::string ip_string;
-    bool ip_file_read_done {false};
     // Start off as request processed so
     // we can take in a first request
     bool req_fetched {true};
@@ -41,45 +40,56 @@ int main(int argc, char *argv[])
     // Instantiate DRAM Controller
     DRAM dram_controller;
     request req; 
-    
+
+    // Print starting message
+    std::cout << "\n -- Starting Simulation -- \n" << std::endl;
+
     // Start DRAM Controller loop
     while (true) {
-        // Increment CPU Clock
-        cpu_clock_tick++;
-
         // Check if we can read in a request
-        if ((!ip_file_read_done) && (dram_controller.is_queue_full() == false)) {
-            // Is previous request processed?
-            // Read in a new one if it is
-            if (req_fetched == true) {
-                if (std::getline(*ip_trace_fstream, ip_string)) {
-                    req = read_file(ip_string);
-                    req_fetched = false;
-                } else {
-                    ip_file_read_done = true;
+        if ((ip_trace_fstream->is_open()) && (dram_controller.is_queue_full() == false) && req_fetched) {
+            // Read a new line
+            ip_string = "";
+            while (ip_string.empty() && ip_trace_fstream->is_open()) {
+                std::getline(*ip_trace_fstream, ip_string);
+                // File over?
+                if (ip_trace_fstream->eof()) {
+                    ip_trace_fstream->close();
+                    break;
                 }
             }
-            // Add to the queue if the current CPU clock
-            // is more than the requested clock tick
+            req = read_file(ip_string);
+            req_fetched = false;
+        }
+
+        // Is it time to add the request to the queue?
+        if ((!dram_controller.is_queue_full()) && !req_fetched) {
+            // Is the queue empty? If so just advance CPU time
+            if ((dram_controller.is_queue_empty()) && (cpu_clock_tick < req.cpu_req_time)) {
+                #ifdef DEBUG
+                std::cout << "Advacing CPU time from " << std::dec << cpu_clock_tick << ": " << req.cpu_req_time << std::endl;
+                #endif
+                cpu_clock_tick = req.cpu_req_time;
+            }
+            
             if (cpu_clock_tick >= req.cpu_req_time) {
-                // If queue is empty, we can "jump" time
-                if (dram_controller.is_queue_empty()) {
-                    std::cout << "Jumping to clock tick: " << req.cpu_req_time << std::endl;
-                    cpu_clock_tick = req.cpu_req_time;
-                }
                 dram_controller.queue_add(req);
                 req_fetched = true;
             }
-        } else {
-            // If queue is empty and file is done, it means that
-            // our simulation is over
-            if (dram_controller.is_queue_empty())
-                break;
         }
+
+        // Increment CPU Clock
+        cpu_clock_tick++;
 
         // Do RAM operations every n-th tick since DRAM clock is slower than CPU clock
         if (cpu_clock_tick % (CPU_CLK_FREQ / dram_controller.DRAM_CLK_FREQ) == 0)
             dram_controller.do_ram_things();
+
+        // Break if queue is empty and file is closed
+        if (!(ip_trace_fstream->is_open()) && dram_controller.is_queue_empty()) {
+            std::cout << "\n -- Simulation Over! -- \n" << std::endl;
+            break;
+        }
     }
 
     // Free the filestream heap
