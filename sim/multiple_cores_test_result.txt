@@ -1,0 +1,43 @@
+Input file: tests/multiple_cores_test.txt
+
+ -- Starting Simulation -- 
+
+CPU Req Time: 0	Type: WRITE	Address: 0x0EAA43DA0
+Added to Queue: CPU Clock: 0 - Time in queue: 0	Request type: WRITE	Address: 0xeaa43da0
+Row: 15017	Column: 124	Bank: 1	Bank Group: 2
+CPU Req Time: 0	Type: READ	Address: 0x00CC6DB10
+Added to Queue: CPU Clock: 1 - Time in queue: 0	Request type: READ	Address: 0xcc6db10
+Row: 817	Column: 1458	Bank: 3	Bank Group: 0
+CPU Req Time: 30	Type: READ	Address: 0x01FF97000
+Added to Queue: CPU Clock: 30 - Time in queue: 0	Request type: READ	Address: 0x1ff97000
+Row: 2046	Column: 736	Bank: 0	Bank Group: 0
+CPU Req Time: 30	Type: READ	Address: 0x063B5E0B0
+Added to Queue: CPU Clock: 31 - Time in queue: 0	Request type: READ	Address: 0x63b5e0b0
+Row: 6381	Column: 966	Bank: 0	Bank Group: 2
+CPU Req Time: 30	Type: WRITE	Address: 0x0A68A8A98
+Added to Queue: CPU Clock: 32 - Time in queue: 0	Request type: WRITE	Address: 0xa68a8a98
+Row: 10658	Column: 1299	Bank: 2	Bank Group: 2
+CPU Req Time: 30	Type: FETCH	Address: 0x0E2FFDE48
+Added to Queue: CPU Clock: 33 - Time in queue: 0	Request type: FETCH	Address: 0xe2ffde48
+Row: 14527	Column: 1977	Bank: 2	Bank Group: 1
+CPU Req Time: 40	Type: READ	Address: 0x08F07D4B0
+Added to Queue: CPU Clock: 40 - Time in queue: 0	Request type: READ	Address: 0x8f07d4b0
+Row: 9153	Column: 1966	Bank: 0	Bank Group: 2
+CPU Req Time: 40	Type: READ	Address: 0x00DB6C168
+Added to Queue: CPU Clock: 41 - Time in queue: 0	Request type: READ	Address: 0xdb6c168
+Row: 877	Column: 1413	Bank: 1	Bank Group: 1
+CPU Req Time: 40	Type: WRITE	Address: 0x08F632568
+Added to Queue: CPU Clock: 42 - Time in queue: 0	Request type: WRITE	Address: 0x8f632568
+Row: 9176	Column: 1613	Bank: 1	Bank Group: 1
+Removed from Queue: CPU Clock: 100 - Time in queue: 50	Request type: WRITE	Address: 0xeaa43da0
+Removed from Queue: CPU Clock: 102 - Time in queue: 51	Request type: READ	Address: 0xcc6db10
+Removed from Queue: CPU Clock: 130 - Time in queue: 50	Request type: READ	Address: 0x1ff97000
+Removed from Queue: CPU Clock: 132 - Time in queue: 51	Request type: READ	Address: 0x63b5e0b0
+Removed from Queue: CPU Clock: 134 - Time in queue: 51	Request type: WRITE	Address: 0xa68a8a98
+Removed from Queue: CPU Clock: 136 - Time in queue: 52	Request type: FETCH	Address: 0xe2ffde48
+Removed from Queue: CPU Clock: 140 - Time in queue: 50	Request type: READ	Address: 0x8f07d4b0
+Removed from Queue: CPU Clock: 142 - Time in queue: 51	Request type: READ	Address: 0xdb6c168
+Removed from Queue: CPU Clock: 144 - Time in queue: 51	Request type: WRITE	Address: 0x8f632568
+
+ -- Simulation Over! -- 
+

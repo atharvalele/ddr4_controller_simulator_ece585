@@ -1,0 +1,19 @@
+Input file: tests/reverse_time_test.txt
+
+ -- Starting Simulation -- 
+
+CPU Req Time: 0	Type: READ	Address: 0x0EAA43DA0
+Added to Queue: CPU Clock: 0 - Time in queue: 0	Request type: READ	Address: 0xeaa43da0
+Row: 15017	Column: 124	Bank: 1	Bank Group: 2
+CPU Req Time: 10	Type: READ	Address: 0x00E25C7C0
+Added to Queue: CPU Clock: 10 - Time in queue: 0	Request type: READ	Address: 0xe25c7c0
+Row: 905	Column: 904	Bank: 3	Bank Group: 3
+CPU Req Time: 4	Type: READ	Address: 0x0CFB37DA8
+Added to Queue: CPU Clock: 11 - Time in queue: 0	Request type: READ	Address: 0xcfb37da8
+Row: 13292	Column: 1789	Bank: 1	Bank Group: 2
+Removed from Queue: CPU Clock: 100 - Time in queue: 50	Request type: READ	Address: 0xeaa43da0
+Removed from Queue: CPU Clock: 110 - Time in queue: 50	Request type: READ	Address: 0xe25c7c0
+Removed from Queue: CPU Clock: 112 - Time in queue: 51	Request type: READ	Address: 0xcfb37da8
+
+ -- Simulation Over! -- 
+

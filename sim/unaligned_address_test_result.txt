@@ -1,0 +1,31 @@
+Input file: tests/unaligned_address_test.txt
+
+ -- Starting Simulation -- 
+
+CPU Req Time: 0	Type: READ	Address: 0x0EAA43DA0
+Added to Queue: CPU Clock: 0 - Time in queue: 0	Request type: READ	Address: 0xeaa43da0
+Row: 15017	Column: 124	Bank: 1	Bank Group: 2
+CPU Req Time: 10	Type: READ	Address: 0x10E25C7C1
+Added to Queue: CPU Clock: 10 - Time in queue: 0	Request type: READ	Address: 0x10e25c7c1
+Row: 17289	Column: 904	Bank: 3	Bank Group: 3
+CPU Req Time: 20	Type: WRITE	Address: 0x0CFB37DA2
+Added to Queue: CPU Clock: 20 - Time in queue: 0	Request type: WRITE	Address: 0xcfb37da2
+Row: 13292	Column: 1788	Bank: 1	Bank Group: 2
+CPU Req Time: 30	Type: READ	Address: 0x0C271E4AB
+Added to Queue: CPU Clock: 30 - Time in queue: 0	Request type: READ	Address: 0xc271e4ab
+Row: 12444	Column: 973	Bank: 0	Bank Group: 2
+CPU Req Time: 40	Type: READ	Address: 0x00DB6C165
+Added to Queue: CPU Clock: 40 - Time in queue: 0	Request type: READ	Address: 0xdb6c165
+Row: 877	Column: 1412	Bank: 1	Bank Group: 1
+CPU Req Time: 50	Type: READ	Address: 0x0C271E4AE
+Added to Queue: CPU Clock: 50 - Time in queue: 0	Request type: READ	Address: 0xc271e4ae
+Row: 12444	Column: 973	Bank: 0	Bank Group: 2
+Removed from Queue: CPU Clock: 100 - Time in queue: 50	Request type: READ	Address: 0xeaa43da0
+Removed from Queue: CPU Clock: 110 - Time in queue: 50	Request type: READ	Address: 0x10e25c7c1
+Removed from Queue: CPU Clock: 120 - Time in queue: 50	Request type: WRITE	Address: 0xcfb37da2
+Removed from Queue: CPU Clock: 130 - Time in queue: 50	Request type: READ	Address: 0xc271e4ab
+Removed from Queue: CPU Clock: 140 - Time in queue: 50	Request type: READ	Address: 0xdb6c165
+Removed from Queue: CPU Clock: 150 - Time in queue: 50	Request type: READ	Address: 0xc271e4ae
+
+ -- Simulation Over! -- 
+

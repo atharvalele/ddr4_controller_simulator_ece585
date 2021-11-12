@@ -1,0 +1,79 @@
+Input file: tests/queue_overflow_test.txt
+
+ -- Starting Simulation -- 
+
+CPU Req Time: 0	Type: WRITE	Address: 0x0EAA43DA0
+Added to Queue: CPU Clock: 0 - Time in queue: 0	Request type: WRITE	Address: 0xeaa43da0
+Row: 15017	Column: 124	Bank: 1	Bank Group: 2
+CPU Req Time: 1	Type: READ	Address: 0x00E25C7C0
+Added to Queue: CPU Clock: 1 - Time in queue: 0	Request type: READ	Address: 0xe25c7c0
+Row: 905	Column: 904	Bank: 3	Bank Group: 3
+CPU Req Time: 2	Type: WRITE	Address: 0x0CFB37DA8
+Added to Queue: CPU Clock: 2 - Time in queue: 0	Request type: WRITE	Address: 0xcfb37da8
+Row: 13292	Column: 1789	Bank: 1	Bank Group: 2
+CPU Req Time: 3	Type: READ	Address: 0x0C271E4A0
+Added to Queue: CPU Clock: 3 - Time in queue: 0	Request type: READ	Address: 0xc271e4a0
+Row: 12444	Column: 972	Bank: 0	Bank Group: 2
+CPU Req Time: 4	Type: READ	Address: 0x00DB6C168
+Added to Queue: CPU Clock: 4 - Time in queue: 0	Request type: READ	Address: 0xdb6c168
+Row: 877	Column: 1413	Bank: 1	Bank Group: 1
+CPU Req Time: 5	Type: READ	Address: 0x0C271E4A0
+Added to Queue: CPU Clock: 5 - Time in queue: 0	Request type: READ	Address: 0xc271e4a0
+Row: 12444	Column: 972	Bank: 0	Bank Group: 2
+CPU Req Time: 6	Type: READ	Address: 0x02E667540
+Added to Queue: CPU Clock: 6 - Time in queue: 0	Request type: READ	Address: 0x2e667540
+Row: 2969	Column: 1256	Bank: 1	Bank Group: 1
+CPU Req Time: 7	Type: READ	Address: 0x00E25C7C0
+Added to Queue: CPU Clock: 7 - Time in queue: 0	Request type: READ	Address: 0xe25c7c0
+Row: 905	Column: 904	Bank: 3	Bank Group: 3
+CPU Req Time: 8	Type: READ	Address: 0x00DB6C168
+Added to Queue: CPU Clock: 8 - Time in queue: 0	Request type: READ	Address: 0xdb6c168
+Row: 877	Column: 1413	Bank: 1	Bank Group: 1
+CPU Req Time: 9	Type: READ	Address: 0x041AFB7A8
+Added to Queue: CPU Clock: 9 - Time in queue: 0	Request type: READ	Address: 0x41afb7a8
+Row: 4203	Column: 1901	Bank: 3	Bank Group: 2
+CPU Req Time: 10	Type: READ	Address: 0x00DB6C168
+Added to Queue: CPU Clock: 10 - Time in queue: 0	Request type: READ	Address: 0xdb6c168
+Row: 877	Column: 1413	Bank: 1	Bank Group: 1
+CPU Req Time: 11	Type: READ	Address: 0x03EA61EB0
+Added to Queue: CPU Clock: 11 - Time in queue: 0	Request type: READ	Address: 0x3ea61eb0
+Row: 4009	Column: 1086	Bank: 2	Bank Group: 2
+CPU Req Time: 12	Type: WRITE	Address: 0x0EAA43DA0
+Added to Queue: CPU Clock: 12 - Time in queue: 0	Request type: WRITE	Address: 0xeaa43da0
+Row: 15017	Column: 124	Bank: 1	Bank Group: 2
+CPU Req Time: 13	Type: WRITE	Address: 0x072A3CEC8
+Added to Queue: CPU Clock: 13 - Time in queue: 0	Request type: WRITE	Address: 0x72a3cec8
+Row: 7336	Column: 1945	Bank: 2	Bank Group: 3
+CPU Req Time: 14	Type: WRITE	Address: 0x0622F8E88
+Added to Queue: CPU Clock: 14 - Time in queue: 0	Request type: WRITE	Address: 0x622f8e88
+Row: 6283	Column: 1817	Bank: 2	Bank Group: 2
+CPU Req Time: 15	Type: WRITE	Address: 0x100ABE4D8
+Added to Queue: CPU Clock: 15 - Time in queue: 0	Request type: WRITE	Address: 0x100abe4d8
+Row: 16426	Column: 1995	Bank: 0	Bank Group: 3
+Removed from Queue: CPU Clock: 100 - Time in queue: 50	Request type: WRITE	Address: 0xeaa43da0
+CPU Req Time: 16	Type: READ	Address: 0x08F07D4B0
+Added to Queue: CPU Clock: 100 - Time in queue: 0	Request type: READ	Address: 0x8f07d4b0
+Row: 9153	Column: 1966	Bank: 0	Bank Group: 2
+Removed from Queue: CPU Clock: 102 - Time in queue: 51	Request type: READ	Address: 0xe25c7c0
+CPU Req Time: 17	Type: READ	Address: 0x0C271E4A0
+Added to Queue: CPU Clock: 102 - Time in queue: 0	Request type: READ	Address: 0xc271e4a0
+Row: 12444	Column: 972	Bank: 0	Bank Group: 2
+Removed from Queue: CPU Clock: 104 - Time in queue: 51	Request type: WRITE	Address: 0xcfb37da8
+Removed from Queue: CPU Clock: 106 - Time in queue: 52	Request type: READ	Address: 0xc271e4a0
+Removed from Queue: CPU Clock: 108 - Time in queue: 52	Request type: READ	Address: 0xdb6c168
+Removed from Queue: CPU Clock: 110 - Time in queue: 53	Request type: READ	Address: 0xc271e4a0
+Removed from Queue: CPU Clock: 112 - Time in queue: 53	Request type: READ	Address: 0x2e667540
+Removed from Queue: CPU Clock: 114 - Time in queue: 54	Request type: READ	Address: 0xe25c7c0
+Removed from Queue: CPU Clock: 116 - Time in queue: 54	Request type: READ	Address: 0xdb6c168
+Removed from Queue: CPU Clock: 118 - Time in queue: 55	Request type: READ	Address: 0x41afb7a8
+Removed from Queue: CPU Clock: 120 - Time in queue: 55	Request type: READ	Address: 0xdb6c168
+Removed from Queue: CPU Clock: 122 - Time in queue: 56	Request type: READ	Address: 0x3ea61eb0
+Removed from Queue: CPU Clock: 124 - Time in queue: 56	Request type: WRITE	Address: 0xeaa43da0
+Removed from Queue: CPU Clock: 126 - Time in queue: 57	Request type: WRITE	Address: 0x72a3cec8
+Removed from Queue: CPU Clock: 128 - Time in queue: 57	Request type: WRITE	Address: 0x622f8e88
+Removed from Queue: CPU Clock: 130 - Time in queue: 58	Request type: WRITE	Address: 0x100abe4d8
+Removed from Queue: CPU Clock: 200 - Time in queue: 50	Request type: READ	Address: 0x8f07d4b0
+Removed from Queue: CPU Clock: 202 - Time in queue: 50	Request type: READ	Address: 0xc271e4a0
+
+ -- Simulation Over! -- 
+
