@@ -6,6 +6,12 @@ void DRAM::queue_add(request req)
     if (req_queue.size() < QUEUE_SIZE) {
         req_queue.push_back(req);
         std::cout << "Added to Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req;
+        uint32_t row = (req.address & 0x1FFFC0000) >> 18;
+        uint16_t col = ((req.address & 0x3FC00) >> 7) | ((req.address & 0x38) >> 3);
+        uint16_t bank = (req.address & 0x300) >> 8;
+        uint16_t bank_g = (req.address & 0xC0) >> 6;
+        std::cout << "Row: " << std::dec << row << std::dec << "\tColumn: "<< col << "\tBank: " << std::dec << bank 
+            << "\tBank Group: " << std::dec << bank_g << std::endl;
     } else {
         std::cout << "Queue Full" << std::endl;
     }
