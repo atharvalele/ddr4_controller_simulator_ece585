@@ -11,7 +11,7 @@ void DRAM::queue_add(request req)
         uint16_t bank = (req.address & 0x300) >> 8;
         uint16_t bank_g = (req.address & 0xC0) >> 6;
         std::cout << "Row: " << std::dec << row << std::dec << "\tColumn: "<< col << "\tBank: " << std::dec << bank 
-            << "\tBank Group: " << std::dec << bank_g << std::endl;
+            << "\tBank Group: " << std::dec << bank_g << "\n" << std::endl;
     } else {
         std::cout << "Queue Full" << std::endl;
     }
