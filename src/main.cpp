@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
             dram_controller.do_ram_things();
 
         // Break if queue is empty and file is closed
-        if (!(ip_trace_fstream->is_open()) && dram_controller.is_queue_empty()) {
+        if (!(ip_trace_fstream->is_open()) && dram_controller.is_queue_empty() && req_fetched) {
             std::cout << "\n -- Simulation Over! -- \n" << std::endl;
             break;
         }
