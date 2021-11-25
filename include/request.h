@@ -2,6 +2,7 @@
 #define __REQUEST_H__
 
 #include <iostream>
+#include <iomanip>
 
 #include "commondefs.h"
 
@@ -21,7 +22,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, request &req)
     {
         os << "Time in queue: " << std::dec << req.q_time << "\tRequest type: " << req.req_type 
-            << "\tAddress: 0x" << std::hex << req.address << std::endl;
+            << "\tAddress: 0x" << std::setw(9) << std::setfill('0') << std::uppercase << std::hex << req.address << std::endl;
 
         return os;
     }
