@@ -48,13 +48,4 @@ void DRAM::do_ram_things()
     for (auto &r: req_queue) {
         r.q_time++;
     }
-
-    /* Remove once an item is present for a 100 CPU clocks */
-    for (auto &r: req_queue) {
-        if (r.q_time >= 100 / (CPU_CLK_FREQ / DRAM_CLK_FREQ)) {
-            queue_remove();
-            // Break, so we effectively "clock out" the requests
-            break;
-        }
-    }
 }
