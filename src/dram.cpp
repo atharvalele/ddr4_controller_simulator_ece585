@@ -10,8 +10,8 @@ void DRAM::queue_add(request req)
         uint16_t col = ((req.address & 0x3FC00) >> 7) | ((req.address & 0x38) >> 3);
         uint16_t bank = (req.address & 0x300) >> 8;
         uint16_t bank_g = (req.address & 0xC0) >> 6;
-        std::cout << "Row: " << std::dec << row << std::dec << "\tColumn: "<< col << "\tBank: " << std::dec << bank 
-            << "\tBank Group: " << std::dec << bank_g << "\n" << std::endl;
+        std::cout << "Row: " << std::hex << row << "\tColumn: "<< col << "\tBank: " << bank 
+            << "\tBank Group: " << bank_g << "\n" << std::endl;
     } else {
         std::cout << "Queue Full" << std::endl;
     }
@@ -21,7 +21,7 @@ void DRAM::queue_add(request req)
 void DRAM::queue_remove()
 {
     if (!is_queue_empty()) {
-        std::cout << "Removed from Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req_queue.front();
+        std::cout << "Removed from Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req_queue.front() << std::endl;
         req_queue.erase(req_queue.begin());
     }
 }
