@@ -63,6 +63,11 @@ request read_file(std::string ip_string)
         req.q_time = 0;
         req.req_type = (REQ_OP)std::stoi(tokens[1], nullptr);
         req.address = std::stoull(tokens[2], nullptr, 16);
+        req.row = (req.address & 0x1FFFC0000) >> 18;
+        req.high_col=((req.address & 0x3FC00) >> 7);
+        req.bank = (req.address & 0x300) >> 8;
+        req.bank_group = (req.address & 0xC0) >> 6;
+        req.burst_index = ((req.address & 0x38) >> 3);
     }
 
     // Print out to debug
