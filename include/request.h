@@ -18,11 +18,18 @@ public:
     
     uint64_t address;
 
+    uint64_t row;
+    uint64_t high_col;
+    uint64_t bank;
+    uint64_t bank_group;
+    uint64_t burst_index;
+
     // Prints corresponding CPU clock cycle, operation type, and HEX address of request
     friend std::ostream& operator<<(std::ostream& os, request &req)
     {
         os << "Time in queue: " << std::dec << req.q_time << "\tRequest type: " << req.req_type 
-            << "\tAddress: 0x" << std::setw(9) << std::setfill('0') << std::uppercase << std::hex << req.address << std::endl;
+            << "\tAddress: 0x" << std::setw(9) << std::setfill('0') << std::uppercase << std::hex << req.address << "\tRow: 0x" << req.row 
+            << "\tHigh Column: 0x" << req.high_col << "\tBank: 0x" << req.bank << "\tBank Group: 0x" << req.bank_group << "\tBurst Index: 0x" << req.burst_index << std::endl;
 
         return os;
     }
