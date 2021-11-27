@@ -1,6 +1,7 @@
 #ifndef __DRAM_H__
 #define __DRAM_H__
 
+#include <fstream>
 #include <vector>
 
 #include "commondefs.h"
@@ -14,6 +15,9 @@ private:
     /* Queue */
     static constexpr uint8_t QUEUE_SIZE = 16;
     std::vector<request> req_queue;
+
+    /* DRAM Commands File */
+    std::ofstream& dram_cmd_file;
 
     /* State of Execution */
     typedef enum DRAM_STATE {
@@ -49,6 +53,9 @@ private:
     // Add refresh time here
 
 public:
+    /* Constructor */
+    DRAM(std::ofstream& dram_cmd_file);
+
     /* DRAM Clock Freq (MHz) */
     static constexpr uint16_t DRAM_CLK_FREQ = 1600;
 

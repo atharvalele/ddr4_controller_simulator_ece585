@@ -15,6 +15,11 @@ int main(int argc, char *argv[])
     std::string ip_trace_name;
     std::ifstream *ip_trace_fstream;
     std::string ip_string;
+
+    // Output DRAM commands file
+    std::ofstream dram_cmd_fstream;
+    std::string op_fname;
+
     // Start off as request processed so
     // we can take in a first request
     bool req_fetched {true};
@@ -37,8 +42,13 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // Open output file with argument name
+    op_fname = argv[2];
+    std::cout << "Output File: " << op_fname << std::endl;
+    dram_cmd_fstream.open(op_fname, std::ios::out);
+    
     // Instantiate DRAM Controller
-    DRAM dram_controller;
+    DRAM dram_controller(dram_cmd_fstream);
     request req; 
 
     // Print starting message
@@ -94,6 +104,9 @@ int main(int argc, char *argv[])
 
     // Free the filestream heap
     delete ip_trace_fstream;
+
+    // Close output file
+    dram_cmd_fstream.close();
 
     return 0;
 }

@@ -1,4 +1,13 @@
+#include <sstream>
+
 #include "dram.h"
+
+/* Constructor */
+DRAM::DRAM(std::ofstream &dram_cmd):
+    dram_cmd_file(dram_cmd)
+{
+    
+}
 
 /* Add element to DRAM queue */
 void DRAM::queue_add(request req)
@@ -80,20 +89,40 @@ void DRAM::do_ram_things()
 
 void DRAM::activate(uint64_t bank_group, uint64_t bank, uint64_t row)
 {
-    std::cout << std::dec <<cpu_clock_tick << "\t" << "ACT\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << row << std::endl;
+    std::stringstream op;
+    
+    op << std::dec << cpu_clock_tick << "\t" << "ACT\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << row << std::endl;
+    
+    std::cout << op.str();
+    dram_cmd_file << op.str();
 }
 
 void DRAM::precharge(uint64_t bank_group, uint64_t bank)
 {
-    std::cout << std::dec << cpu_clock_tick << "\t" << "PRE\t0x" << std::hex << bank_group << "\t0x" << bank << std::endl;
+    std::stringstream op;
+
+    op << std::dec << cpu_clock_tick << "\t" << "PRE\t0x" << std::hex << bank_group << "\t0x" << bank << std::endl;
+    
+    std::cout << op.str();
+    dram_cmd_file << op.str();
 }
 
 void DRAM::dram_read(uint64_t bank_group, uint64_t bank, uint64_t column)
 {
-    std::cout << std::dec << cpu_clock_tick << "\t" << "RD\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
+    std::stringstream op;
+
+    op << std::dec << cpu_clock_tick << "\t" << "RD\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
+
+    std::cout << op.str();
+    dram_cmd_file << op.str();
 }
 
 void DRAM::dram_write(uint64_t bank_group, uint64_t bank, uint64_t column)
 {
-    std::cout << std::dec << cpu_clock_tick << "\t" << "WR\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
+    std::stringstream op;
+    
+    op << std::dec << cpu_clock_tick << "\t" << "WR\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
+
+    std::cout << op.str();
+    dram_cmd_file << op.str();
 }
