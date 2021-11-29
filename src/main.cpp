@@ -26,8 +26,9 @@ int main(int argc, char *argv[])
 
     // Check if input trace file is provided
     // First argument is always executable name
-    if (argc == 1) {
-        std::cerr << "No input trace file provided!" << std::endl;
+    if (argc < 3) {
+        std::cerr << "Wrong command..\n\n";
+        std::cerr << "Usage: ./ece585_memory_controller <input_trace_file> <output_dram_commands_file>" << std::endl;
         return 1;
     }
 
