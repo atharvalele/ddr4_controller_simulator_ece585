@@ -1,6 +1,7 @@
 #ifndef __DRAM_H__
 #define __DRAM_H__
 
+#include <array>
 #include <fstream>
 #include <vector>
 
@@ -19,19 +20,57 @@ private:
     /* DRAM Commands File */
     std::ofstream& dram_cmd_file;
 
-    /* State of Execution */
-    typedef enum DRAM_STATE {
-        IDLE = 0,
-        PRE,
-        PRE_WAIT,
-        ACT,
-        ACT_WAIT,
-        READ,
-        WRITE
-    } OP_STATE;
+    /* DRAM Bank and Bank Groups */
+    static constexpr uint8_t BANKS = 4;
+    static constexpr uint8_t BANK_GRPS = 4;
 
-    /* State of the FSM - Start with PRECHARGE */
-    OP_STATE state = PRE;
+    /* DRAM Bank States */
+    typedef enum DRAM_BANK_STATE {
+        IDLE,
+        PRECHARGE,    
+        PRECHARGE_WAIT,
+        PRECHARGED,
+        ACTIVATE,
+        ACTIVATE_WAIT,
+        READ,
+        READ_WAIT,
+        WRITE,
+        WRITE_WAIT,
+        BURST_WAIT
+    } dram_bank_state_t;
+
+    /* DRAM bank struct */
+    struct dram_bank {
+        dram_bank_state_t state;
+        uint16_t timer;
+    };
+
+    /* State of DRAM Banks */
+    std::array<std::array<dram_bank, BANKS>, BANK_GRPS> bank;
+
+    /* Overload operator for printing state */
+    friend std::ostream& operator<<(std::ostream& os, dram_bank &b)
+    {
+        os << "State: ";
+        switch (b.state) {
+            case IDLE:              os << "IDLE";               break;
+            case PRECHARGE:         os << "PRECHARGE";          break;
+            case PRECHARGED:        os << "PRECHARGED";         break;
+            case PRECHARGE_WAIT:    os << "PRECHARGE_WAIT";     break;
+            case ACTIVATE:          os << "ACTIVATE";           break;
+            case ACTIVATE_WAIT:     os << "ACTIVATE_WAIT";      break;
+            case READ:              os << "READ";               break;
+            case READ_WAIT:         os << "READ_WAIT";          break;
+            case WRITE:             os << "WRITE";              break;
+            case WRITE_WAIT:        os << "WRITE_WAIT";         break;
+            case BURST_WAIT:        os << "BURST_WAIT";         break;
+            default:                os << "UNKNOWN/Update here"; break;
+        }
+
+        os << "\tTimer: " << b.timer << std::endl;
+
+        return os;
+    }
     
     /* RAM parameters - in DRAM clock cycles */
     static constexpr uint8_t tRC = 76;          // ACTIVATE to ACTIVATE or REF command period 
