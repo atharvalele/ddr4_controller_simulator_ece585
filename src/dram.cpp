@@ -6,7 +6,13 @@
 DRAM::DRAM(std::ofstream &dram_cmd):
     dram_cmd_file(dram_cmd)
 {
-    
+    /* Initialize all banks to precharged */
+    for (uint8_t bg = 0; bg < BANK_GRPS; bg++) {
+        for (uint8_t b = 0; b < BANKS; b++) {
+            bank[bg][b].state = PRECHARGED;
+            bank[bg][b].timer = 0;
+        }
+    }
 }
 
 /* Add element to DRAM queue */
@@ -51,40 +57,6 @@ void DRAM::do_ram_things()
     for (auto &r: req_queue) {
         r.q_time++;
     }
-
-    switch(state)
-    {
-        case IDLE: 
-            if(!is_queue_empty())
-                state = PRE;
-        break;
-        case PRE:
-            precharge(req_queue.front().bank_group, req_queue.front().bank);
-            state = ACT;
-        break;
-        case PRE_WAIT:
-        break;
-        case ACT:
-            activate(req_queue.front().bank_group, req_queue.front().bank, req_queue.front().row);
-            if(req_queue.front().req_type == 0 || req_queue.front().req_type == 2)
-                state = READ;
-            else if (req_queue.front().req_type == 1)
-                state = WRITE;
-        break;
-        case ACT_WAIT:  
-        break;
-        case READ:
-            dram_read(req_queue.front().bank_group, req_queue.front().bank, (req_queue.front().high_col << 3));
-            state = IDLE;
-            queue_remove();
-        break;
-        case WRITE:
-            dram_write(req_queue.front().bank_group, req_queue.front().bank, (req_queue.front().high_col << 3));
-            state = IDLE;
-            queue_remove();
-        break;
-    }
-    
 }
 
 void DRAM::activate(uint64_t bank_group, uint64_t bank, uint64_t row)
