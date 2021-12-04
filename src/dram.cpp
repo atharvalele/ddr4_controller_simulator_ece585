@@ -69,6 +69,7 @@ void DRAM::fsm_trigger()
                 if (req.req_type == REQ_OP::READ || req.req_type == REQ_OP::FETCH) {
                     bank[req.bank_group][req.bank].state = READ;
                 } else { /* WRITE */
+                    std::cout << "---- PAGE HIT ----" << std::endl;
                     bank[req.bank_group][req.bank].state = WRITE;
                 }
             } else if (bank[req.bank_group][req.bank].active_row == -1) {
@@ -119,6 +120,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         /* If done precharging, send to precharged state */
         if (!db.timer) {
             db.state = PRECHARGED;
+            db.active_row = -1;
         }
         break;
 
@@ -129,9 +131,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
     case ACTIVATE:
         /* Check ACTIVATE timing constraints, and issue ACT */
         /* Check for tRRD_L / tRRD_S (Sanity...?) */
-        if ((LAST_ACTIVATED_BANK == bg) && (time_since_bank_ACT[bg] < tRRD_L)) {
+        if ((LAST_ACTIVATED_BANK_GRP == bg) && (time_since_bank_ACT[bg] < tRRD_L)) {
             break;
-        } else if ((LAST_ACTIVATED_BANK != bg) && (time_since_bank_ACT[bg] < tRRD_S)) {
+        } else if ((LAST_ACTIVATED_BANK_GRP != bg) && (time_since_bank_ACT[bg] < tRRD_S)) {
             break;
         }
 
@@ -141,7 +143,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             db.timer = tRCD - 1;
 
             /* Update Last Activated Bank */
-            LAST_ACTIVATED_BANK = bg;
+            LAST_ACTIVATED_BANK_GRP = bg;
             time_since_bank_ACT[bg] = 0;
 
             LAST_COMMAND = ACT;
@@ -165,17 +167,17 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         if (LAST_COMMAND == RD) {
             /* Last command was a READ */
             /* Check for tCCD_L / tCCD_S (Less and less sanity...?) */
-            if ((LAST_READ_BANK == bg) && (time_since_bank_RD[bg] < tCCD_L)) {
+            if ((LAST_READ_BANK_GRP == bg) && (time_since_bank_RD[bg] < tCCD_L)) {
                 break;
-            } else if ((LAST_READ_BANK != bg) && (time_since_bank_RD[bg] < tCCD_S)) {
+            } else if ((LAST_READ_BANK_GRP != bg) && (time_since_bank_RD[bg] < tCCD_S)) {
                 break;
             }
-        } else {
+        } else if (LAST_COMMAND == WR) {
             /* Last command was a WRITE */
             /* Check for tWTR_L / tWTR_S (Even lesser sanity...?) */
-            if ((LAST_WRITTEN_BANK == bg) && (time_since_bank_WR[bg] < tWTR_L)) {
+            if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_WR[bg] < tWTR_L)) {
                 break;
-            } else if ((LAST_WRITTEN_BANK != bg) && (time_since_bank_WR[bg] < tWTR_S)) {
+            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_WR[bg] < tWTR_S)) {
                 break;
             }
         }
@@ -187,8 +189,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             db.timer = tCAS - 1;
 
             /* Update Last READ Bank */
-            LAST_READ_BANK = bg;
-            time_since_bank_RD[bg] = 0;
+            LAST_READ_BANK_GRP = bg;
 
             LAST_COMMAND = RD;
 
@@ -209,14 +210,14 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         if (LAST_COMMAND == RD) {
             /* Last command was a READ */
             /* Check for READ-to-WRITE timing */
-            if (time_since_bank_RD[LAST_READ_BANK] < (tCAS + tBURST - tCWD + 2))
+            if (time_since_bank_RD[LAST_READ_BANK_GRP] < (tCAS + tBURST - tCWD + 2))
                 break;
-        } else {
+        } else if (LAST_COMMAND == WR) {
             /* Last command was a WRITE */
             /* Check for tCCD_L / tCCD_S (Where sanity..? Monke.) */
-            if ((LAST_WRITTEN_BANK == bg) && (time_since_bank_WR[bg] < tCCD_L)) {
+            if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_WR[bg] < tCCD_L)) {
                 break;
-            } else if ((LAST_WRITTEN_BANK != bg) && (time_since_bank_WR[bg] < tCCD_S)) {
+            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_WR[bg] < tCCD_S)) {
                 break;
             }
         }
@@ -227,8 +228,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             db.timer = tCWD - 1;
 
             /* Update Last WRITTEN Bank */
-            LAST_WRITTEN_BANK = bg;
-            time_since_bank_WR[bg] = 0;
+            LAST_WRITTEN_BANK_GRP = bg;
 
             LAST_COMMAND = WR;
 
@@ -246,8 +246,13 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         break;
 
     case BURST:
-        if (!db.timer)
+        if (!db.timer) {
             db.state = ACTIVATED;
+            if (LAST_COMMAND == RD)
+                time_since_bank_RD[bg] = 0;
+            else
+                time_since_bank_WR[bg] = 0;
+        }
         break;
 
     default:
@@ -312,7 +317,7 @@ void DRAM::activate(uint64_t bank_group, uint64_t bank, uint64_t row)
 {
     std::stringstream op;
     
-    op << std::dec << cpu_clock_tick << "\t" << "ACT\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << row << std::endl;
+    op << std::dec << clock_tick << "\t" << "ACT\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << row << std::endl;
     
     std::cout << op.str();
     dram_cmd_file << op.str();
@@ -322,7 +327,7 @@ void DRAM::precharge(uint64_t bank_group, uint64_t bank)
 {
     std::stringstream op;
 
-    op << std::dec << cpu_clock_tick << "\t" << "PRE\t0x" << std::hex << bank_group << "\t0x" << bank << std::endl;
+    op << std::dec << clock_tick << "\t" << "PRE\t0x" << std::hex << bank_group << "\t0x" << bank << std::endl;
     
     std::cout << op.str();
     dram_cmd_file << op.str();
@@ -332,7 +337,7 @@ void DRAM::read(uint64_t bank_group, uint64_t bank, uint64_t column)
 {
     std::stringstream op;
 
-    op << std::dec << cpu_clock_tick << "\t" << "RD\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
+    op << std::dec << clock_tick << "\t" << "RD\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
 
     std::cout << op.str();
     dram_cmd_file << op.str();
@@ -342,7 +347,7 @@ void DRAM::write(uint64_t bank_group, uint64_t bank, uint64_t column)
 {
     std::stringstream op;
     
-    op << std::dec << cpu_clock_tick << "\t" << "WR\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
+    op << std::dec << clock_tick << "\t" << "WR\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
 
     std::cout << op.str();
     dram_cmd_file << op.str();
