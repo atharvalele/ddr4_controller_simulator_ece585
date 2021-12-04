@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
             // Is the queue empty? If so just advance CPU time
             if ((dram_controller.is_queue_empty()) && (cpu_clock_tick < req.cpu_req_time)) {
                 #ifdef DEBUG
-                std::cout << "Advacing CPU time from " << std::dec << cpu_clock_tick << ": " << req.cpu_req_time << std::endl;
+                std::cout << "Advancing CPU time from " << std::dec << cpu_clock_tick << ": " << req.cpu_req_time << std::endl;
                 #endif
                 cpu_clock_tick = req.cpu_req_time;
             }
