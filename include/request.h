@@ -18,8 +18,9 @@ public:
     
     uint64_t address;
 
-    uint64_t row;
+    int32_t row;
     uint64_t high_col;
+    uint64_t col;
     uint64_t bank;
     uint64_t bank_group;
     uint64_t burst_index;

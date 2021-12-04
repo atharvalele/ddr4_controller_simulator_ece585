@@ -20,6 +20,15 @@ private:
     /* DRAM Commands File */
     std::ofstream& dram_cmd_file;
 
+    /* DRAM Commands Type */
+    typedef enum DRAM_COMMANDS {
+        PRE,
+        ACT,
+        RD,
+        WR,
+        REF
+    } dram_cmds_t;
+
     /* DRAM Bank and Bank Groups */
     static constexpr uint8_t BANKS = 4;
     static constexpr uint8_t BANK_GRPS = 4;
@@ -32,21 +41,52 @@ private:
         PRECHARGED,
         ACTIVATE,
         ACTIVATE_WAIT,
+        ACTIVATED,
         READ,
         READ_WAIT,
         WRITE,
         WRITE_WAIT,
-        BURST_WAIT
+        BURST
     } dram_bank_state_t;
 
     /* DRAM bank struct */
     struct dram_bank {
         dram_bank_state_t state;
         uint16_t timer;
+        int32_t active_row = -1;
+        int32_t req_row = -1;
+        int32_t req_column = -1;
     };
 
     /* State of DRAM Banks */
     std::array<std::array<dram_bank, BANKS>, BANK_GRPS> bank;
+
+    /*
+     * Time since last bank group command
+     * All of these will be saturating counters
+     *
+     */
+    std::array<uint8_t, BANK_GRPS> time_since_bank_ACT;
+    uint8_t LAST_ACTIVATED_BANK = 0xFF;
+
+    std::array<uint8_t, BANK_GRPS> time_since_bank_RD;
+    uint8_t LAST_READ_BANK = 0xFF;
+
+    std::array<uint8_t, BANK_GRPS> time_since_bank_WR;
+    uint8_t LAST_WRITTEN_BANK = 0xFF;
+
+    dram_cmds_t LAST_COMMAND;
+
+    /* Mark bus busy function */
+    void mark_bus_busy(uint8_t clks);
+    bool bus_busy {false};
+    uint8_t bus_busy_timer = 0;
+
+    /* DRAM FSM Trigger */
+    void fsm_trigger();
+    
+    /* DRAM Bank State Machine */
+    void bank_fsm(uint8_t bg, uint8_t b);
 
     /* Overload operator for printing state */
     friend std::ostream& operator<<(std::ostream& os, dram_bank &b)
@@ -59,15 +99,16 @@ private:
             case PRECHARGE_WAIT:    os << "PRECHARGE_WAIT";     break;
             case ACTIVATE:          os << "ACTIVATE";           break;
             case ACTIVATE_WAIT:     os << "ACTIVATE_WAIT";      break;
+            case ACTIVATED:         os << "ACTIVATED";          break;
             case READ:              os << "READ";               break;
             case READ_WAIT:         os << "READ_WAIT";          break;
             case WRITE:             os << "WRITE";              break;
             case WRITE_WAIT:        os << "WRITE_WAIT";         break;
-            case BURST_WAIT:        os << "BURST_WAIT";         break;
+            case BURST:             os << "BURST";              break;
             default:                os << "UNKNOWN/Update here"; break;
         }
 
-        os << "\tTimer: " << b.timer << std::endl;
+        os << "\tTimer: " << std::dec << b.timer << std::endl;
 
         return os;
     }
@@ -108,8 +149,8 @@ public:
     void do_ram_things();
     void activate(uint64_t bank_group, uint64_t bank, uint64_t row);
     void precharge(uint64_t bank_group, uint64_t bank);
-    void dram_read(uint64_t bank_group, uint64_t bank, uint64_t column);
-    void dram_write(uint64_t bank_group, uint64_t bank, uint64_t column);
+    void read(uint64_t bank_group, uint64_t bank, uint64_t column);
+    void write(uint64_t bank_group, uint64_t bank, uint64_t column);
     /* Extra Credit */
     void dram_refresh();
 };

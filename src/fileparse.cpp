@@ -68,6 +68,7 @@ request read_file(std::string ip_string)
         req.bank = (req.address & 0x300) >> 8;
         req.bank_group = (req.address & 0xC0) >> 6;
         req.burst_index = ((req.address & 0x38) >> 3);
+        req.col = req.high_col | req.burst_index;
     }
 
     // Print out to debug
