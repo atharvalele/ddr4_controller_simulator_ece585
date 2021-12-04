@@ -139,6 +139,10 @@ public:
     /* DRAM Clock Freq (MHz) */
     static constexpr uint16_t DRAM_CLK_FREQ = 1600;
 
+    /* CPU clock advancement accomodation */
+    void clock_advance(uint64_t new_cpu_clock);
+    bool is_time_jump_legal();
+
     /* Queue Methods */
     void queue_add(request req);
     void queue_remove();

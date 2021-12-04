@@ -313,6 +313,59 @@ void DRAM::mark_bus_busy(uint8_t clks)
     bus_busy_timer = clks;
 }
 
+/* Advance Clocks */
+void DRAM::clock_advance(uint64_t new_cpu_clock)
+{
+    /* Add 1 for odd division compensation? */
+    uint64_t clock_diff = (new_cpu_clock - cpu_clock_tick) / 2;
+
+    /* Increment clock */
+    clock_tick += clock_diff;
+
+    /* Increment all time_since_last_XYZ counters */
+    /* ACT */
+    for (auto &t: time_since_bank_ACT) {
+        if ((uint64_t)t + clock_diff > 255)
+            t = 255;
+        else
+            t += clock_diff;
+    }
+    
+    /* READ */
+    for (auto &t: time_since_bank_RD) {
+        if ((uint64_t)t + clock_diff > 255)
+            t = 255;
+        else
+            t += clock_diff;
+    }
+
+    /* WRITE */
+    for (auto &t: time_since_bank_WR) {
+        if ((uint64_t)t + clock_diff > 255)
+            t = 255;
+        else
+            t += clock_diff;
+    }
+
+}
+
+bool DRAM::is_time_jump_legal()
+{
+    /*
+     * Iterate over all banks and if any one is not in the 
+     * PRECHARGED or ACTIVATED state, the jump is illegal
+     */
+    for (uint8_t bg = 0; bg < BANK_GRPS; bg++) {
+        for (uint8_t b = 0; b < BANKS; b++) {
+            if ((bank[bg][b].state != PRECHARGED) && (bank[bg][b].state != ACTIVATED)) {
+                    return false;
+                }
+        }
+    }
+
+    return true;
+}
+
 void DRAM::activate(uint64_t bank_group, uint64_t bank, uint64_t row)
 {
     std::stringstream op;
