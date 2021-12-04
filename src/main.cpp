@@ -76,10 +76,13 @@ int main(int argc, char *argv[])
         // Is it time to add the request to the queue?
         if ((!dram_controller.is_queue_full()) && !req_fetched) {
             // Is the queue empty? If so just advance CPU time
-            if ((dram_controller.is_queue_empty()) && (cpu_clock_tick < req.cpu_req_time)) {
+            if ((dram_controller.is_queue_empty()) &&
+                (dram_controller.is_time_jump_legal()) &&
+                (cpu_clock_tick < req.cpu_req_time)) {
                 #ifdef DEBUG
                 std::cout << "Advancing CPU time from " << std::dec << cpu_clock_tick << ": " << req.cpu_req_time << std::endl;
                 #endif
+                dram_controller.clock_advance(req.cpu_req_time);
                 cpu_clock_tick = req.cpu_req_time;
             }
             
