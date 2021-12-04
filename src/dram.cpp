@@ -69,7 +69,6 @@ void DRAM::fsm_trigger()
                 if (req.req_type == REQ_OP::READ || req.req_type == REQ_OP::FETCH) {
                     bank[req.bank_group][req.bank].state = READ;
                 } else { /* WRITE */
-                    std::cout << "---- PAGE HIT ----" << std::endl;
                     bank[req.bank_group][req.bank].state = WRITE;
                 }
             } else if (bank[req.bank_group][req.bank].active_row == -1) {
@@ -186,12 +185,17 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             /* Issue the read and set wait timings */
             read(bg, b, db.req_column);
             db.state = READ_WAIT;
-            db.timer = tCAS - 1;
+
+            /* Data is valid *AFTER* tCAS, not *AT* tCAS */
+            db.timer = tCAS;
 
             /* Update Last READ Bank */
             LAST_READ_BANK_GRP = bg;
 
             LAST_COMMAND = RD;
+
+            /* Time since last read is counted from the issuance of RD */
+            time_since_bank_RD[bg] = 0;
 
             mark_bus_busy(1);
 
@@ -200,9 +204,13 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         break;
 
     case READ_WAIT:
-        if (!db.timer) {
+        if ((!db.timer) && (!bus_busy)) {
             db.state = BURST;
-            db.timer = tBURST - 1;
+
+            /* Data is valid on bus for tBURST */
+            db.timer = tBURST;
+
+            mark_bus_busy(tBURST);
         }
         break;
 
@@ -225,7 +233,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         if (!bus_busy) {
             write(bg, b, bank[bg][b].req_column);
             db.state = WRITE_WAIT;
-            db.timer = tCWD - 1;
+
+            /* Data is valid *AFTER* tCWD, not *AT* tCWD */
+            db.timer = tCWD;
 
             /* Update Last WRITTEN Bank */
             LAST_WRITTEN_BANK_GRP = bg;
@@ -239,18 +249,22 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         break;
 
     case WRITE_WAIT:
-        if (!db.timer) {
+        if ((!db.timer) && (!bus_busy)) {
             db.state = BURST;
-            db.timer = tBURST - 1;
+
+            /* Data is valid on bus for tBURST */
+            db.timer = tBURST;
+
+            mark_bus_busy(tBURST);
         }
         break;
 
     case BURST:
         if (!db.timer) {
             db.state = ACTIVATED;
-            if (LAST_COMMAND == RD)
-                time_since_bank_RD[bg] = 0;
-            else
+
+            /* Time since last write is counted from the end of the burst */
+            if (LAST_COMMAND == WR)
                 time_since_bank_WR[bg] = 0;
         }
         break;
