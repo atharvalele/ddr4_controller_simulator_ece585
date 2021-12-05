@@ -15,9 +15,10 @@ DRAM::DRAM(std::ofstream &dram_cmd):
     }
 
     /* Initialize all time_since_XYZ counters */
-    std::fill(time_since_bank_ACT.begin(), time_since_bank_ACT.end(), 255);
-    std::fill(time_since_bank_RD.begin(), time_since_bank_RD.end(), 255);
-    std::fill(time_since_bank_WR.begin(), time_since_bank_WR.end(), 255);
+    std::fill(time_since_bank_grp_ACT.begin(), time_since_bank_grp_ACT.end(), 255);
+    std::fill(time_since_bank_grp_RD.begin(), time_since_bank_grp_RD.end(), 255);
+    std::fill(time_since_bank_grp_WR.begin(), time_since_bank_grp_WR.end(), 255);
+    std::fill(time_since_bank_grp_WR.begin(), time_since_bank_WR.end(), 255);
 }
 
 /* Add element to DRAM queue */
@@ -106,6 +107,14 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         break;
 
     case PRECHARGE:
+        /* Check for tWR or tRTP */
+        if ((LAST_COMMAND == RD) && (time_since_bank_grp_RD[LAST_READ_BANK_GRP] < tRTP)) {
+            break;
+        } else if ((LAST_COMMAND == WR) && (LAST_WRITTEN_BANK == b) &&
+                    (LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_WR[LAST_WRITTEN_BANK] < tWR)) {
+            break;
+        }
+
         if (!bus_busy) {
             precharge(bg, b);
             db.timer = tRP - 1;
@@ -130,9 +139,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
     case ACTIVATE:
         /* Check ACTIVATE timing constraints, and issue ACT */
         /* Check for tRRD_L / tRRD_S (Sanity...?) */
-        if ((LAST_ACTIVATED_BANK_GRP == bg) && (time_since_bank_ACT[bg] < tRRD_L)) {
+        if ((LAST_ACTIVATED_BANK_GRP == bg) && (time_since_bank_grp_ACT[bg] < tRRD_L)) {
             break;
-        } else if ((LAST_ACTIVATED_BANK_GRP != bg) && (time_since_bank_ACT[bg] < tRRD_S)) {
+        } else if ((LAST_ACTIVATED_BANK_GRP != bg) && (time_since_bank_grp_ACT[bg] < tRRD_S)) {
             break;
         }
 
@@ -143,7 +152,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
 
             /* Update Last Activated Bank */
             LAST_ACTIVATED_BANK_GRP = bg;
-            time_since_bank_ACT[bg] = 0;
+            time_since_bank_grp_ACT[bg] = 0;
 
             LAST_COMMAND = ACT;
 
@@ -166,17 +175,17 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         if (LAST_COMMAND == RD) {
             /* Last command was a READ */
             /* Check for tCCD_L / tCCD_S (Less and less sanity...?) */
-            if ((LAST_READ_BANK_GRP == bg) && (time_since_bank_RD[bg] < tCCD_L)) {
+            if ((LAST_READ_BANK_GRP == bg) && (time_since_bank_grp_RD[bg] <= tCCD_L)) {
                 break;
-            } else if ((LAST_READ_BANK_GRP != bg) && (time_since_bank_RD[bg] < tCCD_S)) {
+            } else if ((LAST_READ_BANK_GRP != bg) && (time_since_bank_grp_RD[bg] <= tCCD_S)) {
                 break;
             }
         } else if (LAST_COMMAND == WR) {
             /* Last command was a WRITE */
             /* Check for tWTR_L / tWTR_S (Even lesser sanity...?) */
-            if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_WR[bg] < tWTR_L)) {
+            if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_grp_WR[bg] <= (tCWD + tBURST-1 + tWTR_L))) {
                 break;
-            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_WR[bg] < tWTR_S)) {
+            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_grp_WR[bg] <= (tCWD + tBURST-1 + tWTR_S))) {
                 break;
             }
         }
@@ -195,7 +204,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             LAST_COMMAND = RD;
 
             /* Time since last read is counted from the issuance of RD */
-            time_since_bank_RD[bg] = 0;
+            time_since_bank_grp_RD[bg] = 0;
 
             mark_bus_busy(1);
 
@@ -208,7 +217,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             db.state = BURST;
 
             /* Data is valid on bus for tBURST */
-            db.timer = tBURST;
+            db.timer = tBURST - 1;
 
             mark_bus_busy(tBURST);
         }
@@ -218,14 +227,14 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         if (LAST_COMMAND == RD) {
             /* Last command was a READ */
             /* Check for READ-to-WRITE timing */
-            if (time_since_bank_RD[LAST_READ_BANK_GRP] < (tCAS + tBURST - tCWD + 2))
+            if (time_since_bank_grp_RD[LAST_READ_BANK_GRP] < (tCAS + tBURST - tCWD + 2))
                 break;
         } else if (LAST_COMMAND == WR) {
             /* Last command was a WRITE */
             /* Check for tCCD_L / tCCD_S (Where sanity..? Monke.) */
-            if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_WR[bg] < tCCD_L)) {
+            if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_grp_WR[bg] <= tCCD_L)) {
                 break;
-            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_WR[bg] < tCCD_S)) {
+            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_grp_WR[bg] <= tCCD_S)) {
                 break;
             }
         }
@@ -239,8 +248,12 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
 
             /* Update Last WRITTEN Bank */
             LAST_WRITTEN_BANK_GRP = bg;
+            LAST_WRITTEN_BANK = b;
 
             LAST_COMMAND = WR;
+
+            time_since_bank_grp_WR[bg] = 0;
+            time_since_bank_WR[b] = 0;
 
             mark_bus_busy(1);
 
@@ -253,7 +266,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             db.state = BURST;
 
             /* Data is valid on bus for tBURST */
-            db.timer = tBURST;
+            db.timer = tBURST - 1;
 
             mark_bus_busy(tBURST);
         }
@@ -264,8 +277,8 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             db.state = ACTIVATED;
 
             /* Time since last write is counted from the end of the burst */
-            if (LAST_COMMAND == WR)
-                time_since_bank_WR[bg] = 0;
+            //if (LAST_COMMAND == WR)
+                // time_since_bank_grp_WR[bg] = 0;
         }
         break;
 
@@ -305,17 +318,22 @@ void DRAM::do_ram_things()
 
     /* Increment all time_since_last_XYZ counters */
     /* ACT */
-    for (auto &t: time_since_bank_ACT)
+    for (auto &t: time_since_bank_grp_ACT)
         if (t < 255)
             t++;
     
     /* READ */
-    for (auto &t: time_since_bank_RD)
+    for (auto &t: time_since_bank_grp_RD)
         if (t < 255)
             t++;
 
     /* WRITE */
-    for (auto &t: time_since_bank_WR)
+    for (auto &t: time_since_bank_grp_WR)
+        if (t < 255)
+            t++;
+    
+    /* PRECHARGE */
+    for (auto &t: time_since_bank_grp_PRE)
         if (t < 255)
             t++;
 }
@@ -338,7 +356,7 @@ void DRAM::clock_advance(uint64_t new_cpu_clock)
 
     /* Increment all time_since_last_XYZ counters */
     /* ACT */
-    for (auto &t: time_since_bank_ACT) {
+    for (auto &t: time_since_bank_grp_ACT) {
         if ((uint64_t)t + clock_diff > 255)
             t = 255;
         else
@@ -346,7 +364,7 @@ void DRAM::clock_advance(uint64_t new_cpu_clock)
     }
     
     /* READ */
-    for (auto &t: time_since_bank_RD) {
+    for (auto &t: time_since_bank_grp_RD) {
         if ((uint64_t)t + clock_diff > 255)
             t = 255;
         else
@@ -354,13 +372,20 @@ void DRAM::clock_advance(uint64_t new_cpu_clock)
     }
 
     /* WRITE */
-    for (auto &t: time_since_bank_WR) {
+    for (auto &t: time_since_bank_grp_WR) {
         if ((uint64_t)t + clock_diff > 255)
             t = 255;
         else
             t += clock_diff;
     }
 
+    /* PRECHARGE */
+    for (auto &t: time_since_bank_grp_PRE) {
+        if ((uint64_t)t + clock_diff > 255)
+            t = 255;
+        else
+            t += clock_diff;
+    }
 }
 
 bool DRAM::is_time_jump_legal()
