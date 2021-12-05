@@ -214,9 +214,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
     case ACTIVATE:
         /* Check ACTIVATE timing constraints, and issue ACT */
         /* Check for tRRD_L / tRRD_S (Sanity...?) */
-        if ((LAST_ACTIVATED_BANK_GRP == bg) && (time_since_bank_grp_ACT[bg] < tRRD_L)) {
+        if ((LAST_ACTIVATED_BANK_GRP == bg) && (time_since_bank_grp_ACT[bg] <= tRRD_L)) {
             break;
-        } else if ((LAST_ACTIVATED_BANK_GRP != bg) && (time_since_bank_grp_ACT[bg] < tRRD_S)) {
+        } else if ((LAST_ACTIVATED_BANK_GRP != bg) && (time_since_bank_grp_ACT[bg] <= tRRD_S)) {
             break;
         }
 
