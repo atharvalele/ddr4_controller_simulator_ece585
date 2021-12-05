@@ -110,7 +110,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         if ((LAST_COMMAND == RD) && (time_since_bank_grp_RD[LAST_READ_BANK_GRP] < tRTP)) {
             break;
         } else if ((LAST_COMMAND == WR) && (LAST_WRITTEN_BANK == b) &&
-                    (LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_WR[LAST_WRITTEN_BANK] < (tCWD + tBURST-1 + tWR))) {
+                    (LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_WR[LAST_WRITTEN_BANK] <= (tCWD + tBURST-1 + tWR))) {
             break;
         }
 
@@ -322,8 +322,13 @@ void DRAM::do_ram_things()
         if (t < 255)
             t++;
 
-    /* WRITE */
+    /* BANK GROUP WRITE */
     for (auto &t: time_since_bank_grp_WR)
+        if (t < 255)
+            t++;
+
+    /* BANK WRITE */
+    for (auto &t: time_since_bank_WR)
         if (t < 255)
             t++;
     
@@ -366,8 +371,16 @@ void DRAM::clock_advance(uint64_t new_cpu_clock)
             t += clock_diff;
     }
 
-    /* WRITE */
+    /* BANK GROUP WRITE */
     for (auto &t: time_since_bank_grp_WR) {
+        if ((uint64_t)t + clock_diff > 255)
+            t = 255;
+        else
+            t += clock_diff;
+    }
+
+    /* BANK WRITE */
+    for (auto &t: time_since_bank_WR) {
         if ((uint64_t)t + clock_diff > 255)
             t = 255;
         else
