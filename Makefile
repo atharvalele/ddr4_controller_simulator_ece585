@@ -21,7 +21,7 @@ OBJS	:= $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 DEPS	:= $(OBJS:.o=.d)
 
 # Compiler
-CXX			= g++
+CXX			= clang++
 CXXFLAGS 	= -Wall -Werror -std=c++11
 
 # Build Recipies
