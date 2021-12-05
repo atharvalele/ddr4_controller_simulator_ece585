@@ -84,7 +84,6 @@ void DRAM::fsm_trigger()
     }
 }
 
-
 /*
  * DRAM Bank State Machine
  *
@@ -111,7 +110,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         if ((LAST_COMMAND == RD) && (time_since_bank_grp_RD[LAST_READ_BANK_GRP] < tRTP)) {
             break;
         } else if ((LAST_COMMAND == WR) && (LAST_WRITTEN_BANK == b) &&
-                    (LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_WR[LAST_WRITTEN_BANK] < tWR)) {
+                    (LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_WR[LAST_WRITTEN_BANK] < (tCWD + tBURST-1 + tWR))) {
             break;
         }
 
@@ -275,10 +274,6 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
     case BURST:
         if (!db.timer) {
             db.state = ACTIVATED;
-
-            /* Time since last write is counted from the end of the burst */
-            //if (LAST_COMMAND == WR)
-                // time_since_bank_grp_WR[bg] = 0;
         }
         break;
 
