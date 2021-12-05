@@ -18,19 +18,21 @@ DRAM::DRAM(std::ofstream &dram_cmd):
     std::fill(time_since_bank_grp_ACT.begin(), time_since_bank_grp_ACT.end(), 255);
     std::fill(time_since_bank_grp_RD.begin(), time_since_bank_grp_RD.end(), 255);
     std::fill(time_since_bank_grp_WR.begin(), time_since_bank_grp_WR.end(), 255);
-    std::fill(time_since_bank_grp_WR.begin(), time_since_bank_WR.end(), 255);
+    std::fill(time_since_bank_WR.begin(), time_since_bank_WR.end(), 255);
 }
 
 /* Look for the queue element */
 int8_t DRAM::queue_search_active_req(uint64_t address)
 {
-    int8_t i;
-    for (i = 0; i < req_queue.size(); i++) {
-        if ((req_queue[i].address == address) && (req_queue[i].busy == true))
-            return i;
+    int8_t pos = -1;
+    for (size_t i = 0; i < req_queue.size(); i++) {
+        if ((req_queue[i].address == address) && (req_queue[i].busy == true)) {
+            pos = i;
+            break;
+        }
     }
 
-    return -1;
+    return pos;
 }
 
 /* Add element to DRAM queue */
@@ -38,9 +40,13 @@ void DRAM::queue_add(request req)
 {
     if (req_queue.size() < QUEUE_SIZE) {
         req_queue.push_back(req);
+        #ifdef DEBUG
         std::cout << "Added to Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req;
+        #endif
     } else {
+        #ifdef DEBUG
         std::cout << "Queue Full" << std::endl;
+        #endif
     }
 }
 
@@ -52,7 +58,9 @@ void DRAM::queue_remove(uint64_t address)
     if (!is_queue_empty()) {
         pos = queue_search_active_req(address);
         if (pos != -1) {
+            #ifdef DEBUG
             std::cout << "Removed from Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req_queue[pos] << std::endl;
+            #endif
             req_queue.erase(req_queue.begin() + pos);
         } else {
             std::cerr << "Element not found! ERROR" << std::endl;
