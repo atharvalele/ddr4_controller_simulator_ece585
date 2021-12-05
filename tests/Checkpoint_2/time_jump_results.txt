@@ -1,0 +1,19 @@
+CPU Req Time: 0 Type: READ Address: 0x0EAA43DA0
+Added to Queue: 0 Time in queue: 0 Request type: READ Address: 0x0EAA43DA0
+
+CPU Req Time: 10 Type: READ Address: 0x00E25C7C0
+Added to Queue: 10 Time in queue: 0 Request type: READ Address: 0x00E25C7C0
+
+Removed from Queue: CPU Clock: 100 - Time in queue: 50   Request type: READ     Address: 0x0EAA43DA0
+
+Removed from Queue: CPU Clock: 110 - Time in queue: 50   Request type: READ     Address: 0x00E25C7C0
+
+CPU Req Time: 200 Type: READ Address: 0x0CFB37DA8
+Added to Queue: 10 Time in queue: 0 Request type: READ Address: 0x0CFB37DA8
+
+Removed from Queue: CPU Clock: 300 - Time in queue: 50   Request type: READ     Address: 0x0CFB37DA8
+
+CPU Req Time: 400 Type: WRITE Address: 0x00DB6C168
+Added to Queue: 400 Time in queue: 0 Request type: WRITE Address: 0x00DB6C168
+
+Removed from Queue: CPU Clock: 500 - Time in queue: 50   Request type: WRITE     Address: 0x00DB6C168
