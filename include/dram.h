@@ -56,6 +56,8 @@ private:
         int32_t active_row = -1;
         int32_t req_row = -1;
         int32_t req_column = -1;
+        uint64_t address;
+        bool busy;
     };
 
     /* State of DRAM Banks */
@@ -150,8 +152,9 @@ public:
     bool is_time_jump_legal();
 
     /* Queue Methods */
+    int8_t queue_search_active_req(uint64_t address);
     void queue_add(request req);
-    void queue_remove();
+    void queue_remove(uint64_t address);
     bool is_queue_empty();
     bool is_queue_full();
 

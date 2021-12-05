@@ -21,6 +21,18 @@ DRAM::DRAM(std::ofstream &dram_cmd):
     std::fill(time_since_bank_grp_WR.begin(), time_since_bank_WR.end(), 255);
 }
 
+/* Look for the queue element */
+int8_t DRAM::queue_search_active_req(uint64_t address)
+{
+    int8_t i;
+    for (i = 0; i < req_queue.size(); i++) {
+        if ((req_queue[i].address == address) && (req_queue[i].busy == true))
+            return i;
+    }
+
+    return -1;
+}
+
 /* Add element to DRAM queue */
 void DRAM::queue_add(request req)
 {
@@ -33,11 +45,19 @@ void DRAM::queue_add(request req)
 }
 
 /* Remove element from the queue */
-void DRAM::queue_remove()
+void DRAM::queue_remove(uint64_t address)
 {
+    int8_t pos;
+
     if (!is_queue_empty()) {
-        std::cout << "Removed from Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req_queue.front() << std::endl;
-        req_queue.erase(req_queue.begin());
+        pos = queue_search_active_req(address);
+        if (pos != -1) {
+            std::cout << "Removed from Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req_queue[pos] << std::endl;
+            req_queue.erase(req_queue.begin() + pos);
+        } else {
+            std::cerr << "Element not found! ERROR" << std::endl;
+            exit(1);
+        }
     }
 }
 
@@ -53,6 +73,53 @@ bool DRAM::is_queue_full()
     return (req_queue.size() == QUEUE_SIZE);
 }
 
+#define BANK_PARALLELISM
+/* DRAM FSM Trigger */
+void DRAM::fsm_trigger()
+{
+    /* Iterate over all requests in queue that are not busy */
+    for (auto &req: req_queue) {
+        if (req.busy == false) {
+            if (bank[req.bank_group][req.bank].busy == false) {
+                req.busy = true;
+                bank[req.bank_group][req.bank].busy = true;
+                bank[req.bank_group][req.bank].address = req.address;
+                bank[req.bank_group][req.bank].req_row = req.row;
+                bank[req.bank_group][req.bank].req_column = req.col;
+            }
+        }
+    }
+
+    /*
+     * Iterate over all requests in queue that are busy, and trigger the
+     * corresponding FSMs
+     */
+    for (auto &req: req_queue) {
+        if (req.busy == true) {
+            /* Ensure we don't trigger the same FSM twice */
+            if (bank[req.bank_group][req.bank].state == ACTIVATED ||
+                bank[req.bank_group][req.bank].state == PRECHARGED) {
+                if (req.row == bank[req.bank_group][req.bank].active_row) {
+                    /* Page Hit */
+                    /* Check if READ/WRITE and set state/timer accordingly */
+                    if (req.req_type == REQ_OP::READ || req.req_type == REQ_OP::FETCH) {
+                        bank[req.bank_group][req.bank].state = READ;
+                    } else { /* WRITE */
+                        bank[req.bank_group][req.bank].state = WRITE;
+                    }
+                } else if (bank[req.bank_group][req.bank].active_row == -1) {
+                    /* Page Empty */
+                    bank[req.bank_group][req.bank].state = ACTIVATE;
+                } else {
+                    /* Page Miss */
+                    bank[req.bank_group][req.bank].state = PRECHARGE;
+                }
+            }
+        }
+    }
+}
+#ifdef BANK_PARALLELISM
+#else
 /* DRAM FSM Trigger */
 void DRAM::fsm_trigger()
 {
@@ -83,6 +150,7 @@ void DRAM::fsm_trigger()
         }
     }
 }
+#endif
 
 /*
  * DRAM Bank State Machine
@@ -207,7 +275,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
 
             mark_bus_busy(1);
 
-            queue_remove();
+            queue_remove(db.address);
         }
         break;
 
@@ -256,7 +324,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
 
             mark_bus_busy(1);
 
-            queue_remove();
+            queue_remove(db.address);
         }
         break;
 
@@ -274,6 +342,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
     case BURST:
         if (!db.timer) {
             db.state = ACTIVATED;
+            db.busy = false;
+            db.req_column = -1;
+            db.req_row = -1;
         }
         break;
 
