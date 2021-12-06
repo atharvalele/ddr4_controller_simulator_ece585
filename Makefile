@@ -43,6 +43,7 @@ build:
 debug: CXXFLAGS += -g -DDEBUG
 debug: all
 
+release: CXXFLAGS += -O2
 release: all
 
 .PHONY: all clean debug release build info
