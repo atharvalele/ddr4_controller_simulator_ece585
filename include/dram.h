@@ -57,7 +57,7 @@ private:
         int32_t req_row = -1;
         int32_t req_column = -1;
         uint64_t address;
-        bool busy;
+        bool busy = false;
     };
 
     /* State of DRAM Banks */
