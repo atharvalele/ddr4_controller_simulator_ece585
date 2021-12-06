@@ -3,6 +3,9 @@
 
 #include <ostream>
 
+// Bank Parallelism Enable switch
+#define BANK_PARALLELISM
+
 // CPU Clock Frequency (MHz)
 constexpr uint16_t CPU_CLK_FREQ = 3200;
 

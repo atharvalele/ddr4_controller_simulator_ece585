@@ -56,7 +56,11 @@ void DRAM::queue_remove(uint64_t address)
     int8_t pos;
 
     if (!is_queue_empty()) {
+        #ifdef BANK_PARALLELISM
         pos = queue_search_active_req(address);
+        #else
+        pos = 0;
+        #endif
         if (pos != -1) {
             #ifdef DEBUG
             std::cout << "Removed from Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req_queue[pos] << std::endl;
@@ -81,7 +85,7 @@ bool DRAM::is_queue_full()
     return (req_queue.size() == QUEUE_SIZE);
 }
 
-#define BANK_PARALLELISM
+#ifdef BANK_PARALLELISM
 /* DRAM FSM Trigger */
 void DRAM::fsm_trigger()
 {
@@ -126,7 +130,6 @@ void DRAM::fsm_trigger()
         }
     }
 }
-#ifdef BANK_PARALLELISM
 #else
 /* DRAM FSM Trigger */
 void DRAM::fsm_trigger()
