@@ -11,11 +11,8 @@
  * Parses the input trace string
  * Prints to debug console if built in debug mode
  */
-request read_file(std::string ip_string)
+void read_file(std::string ip_string, request& req)
 {
-    // Request to be returned
-    request req;
-
     uint32_t substr_begin = 0, substr_end, pos = 0;
 
     std::string tokens[3];
@@ -69,6 +66,9 @@ request read_file(std::string ip_string)
         req.bank_group = (req.address & 0xC0) >> 6;
         req.burst_index = ((req.address & 0x38) >> 3);
         req.col = req.high_col | req.burst_index;
+        req.valid = true;
+    } else {
+        req.valid = false;
     }
 
     // Print out to debug
@@ -86,6 +86,4 @@ request read_file(std::string ip_string)
     if (token_valid)
         std::cout << "CPU Req Time: " << tokens[0] << "\tType: " << op << "\tAddress: " << tokens[2] << std::endl;
     #endif
-
-    return req;
 }

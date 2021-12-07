@@ -3,6 +3,6 @@
 
 #include "request.h"
 
-request read_file(std::string ip_string);
+void read_file(std::string ip_string, request& req);
 
 #endif

@@ -26,6 +26,7 @@ public:
     uint64_t burst_index;
 
     bool busy = false;
+    bool valid = false;
 
     // Prints corresponding CPU clock cycle, operation type, and HEX address of request
     friend std::ostream& operator<<(std::ostream& os, request &req)

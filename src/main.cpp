@@ -69,8 +69,10 @@ int main(int argc, char *argv[])
                     break;
                 }
             }
-            req = read_file(ip_string);
-            req_fetched = false;
+            
+            read_file(ip_string, req);
+            if (req.valid)
+                req_fetched = false;
         }
 
         // Is it time to add the request to the queue?
