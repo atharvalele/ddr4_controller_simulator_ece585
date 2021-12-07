@@ -48,6 +48,8 @@ release: all
 
 .PHONY: all clean debug release build info
 
+.DEFAULT_GOAL := release
+
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
 	@echo "Cleanup done!"
