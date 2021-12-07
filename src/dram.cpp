@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <sstream>
 
 #include "dram.h"
@@ -499,7 +500,7 @@ void DRAM::activate(uint64_t bank_group, uint64_t bank, uint64_t row)
 {
     std::stringstream op;
     
-    op << std::dec << cpu_clock_tick << "\t" << "ACT\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << row << std::endl;
+    op << std::dec << cpu_clock_tick << "\t" << "ACT\t" << std::hex << std::uppercase << bank_group << "\t" << bank << "\t" << row << std::endl;
     
     std::cout << op.str();
     dram_cmd_file << op.str();
@@ -509,7 +510,7 @@ void DRAM::precharge(uint64_t bank_group, uint64_t bank)
 {
     std::stringstream op;
 
-    op << std::dec << cpu_clock_tick << "\t" << "PRE\t0x" << std::hex << bank_group << "\t0x" << bank << std::endl;
+    op << std::dec << cpu_clock_tick << "\t" << "PRE\t" << std::hex << std::uppercase << bank_group << "\t" << bank << std::endl;
     
     std::cout << op.str();
     dram_cmd_file << op.str();
@@ -519,7 +520,7 @@ void DRAM::read(uint64_t bank_group, uint64_t bank, uint64_t column)
 {
     std::stringstream op;
 
-    op << std::dec << cpu_clock_tick << "\t" << "RD\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
+    op << std::dec << cpu_clock_tick << "\t" << "RD\t" << std::hex << std::uppercase << bank_group << "\t" << bank << "\t" << column << std::endl;
 
     std::cout << op.str();
     dram_cmd_file << op.str();
@@ -529,7 +530,7 @@ void DRAM::write(uint64_t bank_group, uint64_t bank, uint64_t column)
 {
     std::stringstream op;
     
-    op << std::dec << cpu_clock_tick << "\t" << "WR\t0x" << std::hex << bank_group << "\t0x" << bank << "\t0x" << column << std::endl;
+    op << std::dec << cpu_clock_tick << "\t" << "WR\t" << std::hex << std::uppercase << bank_group << "\t" << bank << "\t" << column << std::endl;
 
     std::cout << op.str();
     dram_cmd_file << op.str();
