@@ -69,19 +69,19 @@ private:
      *
      */
     std::array<uint8_t, BANK_GRPS> time_since_bank_grp_ACT;
-    uint8_t LAST_ACTIVATED_BANK_GRP = 0xFF;
+    uint8_t LAST_ACTIVATED_BANK_GRP = 0;
 
     std::array<uint8_t, BANK_GRPS> time_since_bank_grp_RD;
-    uint8_t LAST_READ_BANK_GRP = 0xFF;
+    uint8_t LAST_READ_BANK_GRP = 0;
 
     std::array<uint8_t, BANK_GRPS> time_since_bank_grp_WR;
-    uint8_t LAST_WRITTEN_BANK_GRP = 0xFF;
+    uint8_t LAST_WRITTEN_BANK_GRP = 0;
     
     std::array<uint8_t, BANKS> time_since_bank_WR;
-    uint8_t LAST_WRITTEN_BANK = 0xFF;
+    uint8_t LAST_WRITTEN_BANK = 0;
 
     std::array<uint8_t, BANK_GRPS> time_since_bank_grp_PRE;
-    uint8_t LAST_PRECHARGED_BANK_GRP = 0xFF;
+    uint8_t LAST_PRECHARGED_BANK_GRP = 0;
 
     dram_cmds_t LAST_COMMAND;
 

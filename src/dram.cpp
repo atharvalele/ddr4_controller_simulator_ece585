@@ -218,9 +218,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
     case ACTIVATE:
         /* Check ACTIVATE timing constraints, and issue ACT */
         /* Check for tRRD_L / tRRD_S (Sanity...?) */
-        if ((LAST_ACTIVATED_BANK_GRP == bg) && (time_since_bank_grp_ACT[bg] <= tRRD_L)) {
+        if ((LAST_ACTIVATED_BANK_GRP == bg) && (time_since_bank_grp_ACT[bg] < tRRD_L)) {
             break;
-        } else if ((LAST_ACTIVATED_BANK_GRP != bg) && (time_since_bank_grp_ACT[bg] <= tRRD_S)) {
+        } else if ((LAST_ACTIVATED_BANK_GRP != bg) && (time_since_bank_grp_ACT[LAST_ACTIVATED_BANK_GRP] < tRRD_S)) {
             break;
         }
 
@@ -254,9 +254,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         if (LAST_COMMAND == RD) {
             /* Last command was a READ */
             /* Check for tCCD_L / tCCD_S (Less and less sanity...?) */
-            if ((LAST_READ_BANK_GRP == bg) && (time_since_bank_grp_RD[bg] <= tCCD_L)) {
+            if ((LAST_READ_BANK_GRP == bg) && (time_since_bank_grp_RD[bg] < tCCD_L)) {
                 break;
-            } else if ((LAST_READ_BANK_GRP != bg) && (time_since_bank_grp_RD[bg] <= tCCD_S)) {
+            } else if ((LAST_READ_BANK_GRP != bg) && (time_since_bank_grp_RD[LAST_READ_BANK_GRP] < tCCD_S)) {
                 break;
             }
         } else if (LAST_COMMAND == WR) {
@@ -264,7 +264,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             /* Check for tWTR_L / tWTR_S (Even lesser sanity...?) */
             if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_grp_WR[bg] <= (tCWD + tBURST-1 + tWTR_L))) {
                 break;
-            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_grp_WR[bg] <= (tCWD + tBURST-1 + tWTR_S))) {
+            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_grp_WR[LAST_WRITTEN_BANK_GRP] <= (tCWD + tBURST-1 + tWTR_S))) {
                 break;
             }
         }
@@ -313,7 +313,7 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
             /* Check for tCCD_L / tCCD_S (Where sanity..? Monke.) */
             if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_grp_WR[bg] <= tCCD_L)) {
                 break;
-            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_grp_WR[bg] <= tCCD_S)) {
+            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_grp_WR[LAST_WRITTEN_BANK_GRP] <= tCCD_S)) {
                 break;
             }
         }
