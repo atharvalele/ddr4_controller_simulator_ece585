@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <string>
 
 #include "commondefs.h"
 
@@ -27,6 +28,8 @@ public:
 
     bool busy = false;
     bool valid = false;
+
+    std::string ip_string;
 
     // Prints corresponding CPU clock cycle, operation type, and HEX address of request
     friend std::ostream& operator<<(std::ostream& os, request &req)

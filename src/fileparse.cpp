@@ -67,6 +67,7 @@ void read_file(std::string ip_string, request& req)
         req.burst_index = ((req.address & 0x38) >> 3);
         req.col = req.high_col | req.burst_index;
         req.valid = true;
+        req.ip_string = ip_string;
     } else {
         req.valid = false;
     }

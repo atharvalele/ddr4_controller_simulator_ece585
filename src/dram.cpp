@@ -40,7 +40,17 @@ int8_t DRAM::queue_search_active_req(uint64_t address)
 void DRAM::queue_add(request req)
 {
     if (req_queue.size() < QUEUE_SIZE) {
+        #ifdef RESCHEDULING
+        int8_t pos = 0;
+        if (is_req_page_active(req)) {
+            pos = queue_get_free_location();
+            //std::cout << "Free Location: " << (int)pos << std::endl;
+        }
+        auto iterator_pos = req_queue.begin() + pos;
+        req_queue.insert(iterator_pos, req);
+        #else
         req_queue.push_back(req);
+        #endif
         #ifdef DEBUG
         std::cout << "Added to Queue: CPU Clock: " << std::dec << cpu_clock_tick << " - " << req;
         #endif
@@ -99,6 +109,8 @@ void DRAM::fsm_trigger()
                 bank[req.bank_group][req.bank].address = req.address;
                 bank[req.bank_group][req.bank].req_row = req.row;
                 bank[req.bank_group][req.bank].req_column = req.col;
+
+                bank[req.bank_group][req.bank].req_string = req.ip_string;
             }
         }
     }
@@ -195,6 +207,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         }
 
         if (!bus_busy) {
+            #ifdef RESCHEDULE_DEBUG
+            std::cout << bank[bg][b].req_string << "\t\t - ";
+            #endif
             precharge(bg, b);
             db.timer = tRP - 1;
             db.state = PRECHARGE_WAIT;
@@ -225,6 +240,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         }
 
         if (!bus_busy) {
+            #ifdef RESCHEDULE_DEBUG
+            std::cout << bank[bg][b].req_string << "\t\t - ";
+            #endif
             activate(bg, b, db.req_row);
             db.state = ACTIVATE_WAIT;
             db.timer = tRCD - 1;
@@ -271,6 +289,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
 
         if (!bus_busy) {
             /* Issue the read and set wait timings */
+            #ifdef RESCHEDULE_DEBUG
+            std::cout << bank[bg][b].req_string << "\t\t - ";
+            #endif
             read(bg, b, db.req_column);
             db.state = READ_WAIT;
 
@@ -319,6 +340,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         }
 
         if (!bus_busy) {
+            #ifdef RESCHEDULE_DEBUG
+            std::cout << bank[bg][b].req_string << "\t\t - ";
+            #endif
             write(bg, b, bank[bg][b].req_column);
             db.state = WRITE_WAIT;
 
@@ -368,6 +392,11 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
 /* DRAM operation */
 void DRAM::do_ram_things()
 {
+    #ifdef RESCHEDULING
+    /* Avoid starving requests */
+    feed_starving_requests();
+    #endif
+
     /* Trigger FSM */
     fsm_trigger();
 
@@ -436,6 +465,10 @@ void DRAM::clock_advance(uint64_t new_cpu_clock)
 
     /* Increment clock */
     clock_tick += clock_diff;
+
+    /* Increment time in queue */
+    for (auto &req: req_queue)
+        req.q_time += clock_diff;
 
     /* Unmark bus busy if enough clock cycles have passed */
     if (clock_diff >= bus_busy_timer) {
@@ -540,4 +573,54 @@ void DRAM::write(uint64_t bank_group, uint64_t bank, uint64_t column)
 
     std::cout << op.str();
     dram_cmd_file << op.str();
+}
+
+/* Rescheduling Functions */
+
+/* Is requested row active? */
+bool DRAM::is_req_page_active(request req)
+{
+    if (bank[req.bank_group][req.bank].active_row == req.row) {
+        #ifdef RESCHEDULE_DEBUG
+        std::cout << "Page active for request - BG: " << req.bank_group << "\tB: " << req.bank << "\tRow: " << req.row << std::endl;
+        #endif
+        return true;
+    }
+    
+    return false;
+}
+
+/* Get the free location for a request in queue */
+int8_t DRAM::queue_get_free_location()
+{
+    for (size_t i = 0; i < req_queue.size(); i++) {
+        if (req_queue[i].busy == true) {
+            // Go to the next request if element is busy
+            continue;
+        } else {
+            // Just add it to the next "free" location
+            // Ideally I think I want to maintain the order of requests
+            // to the same bank group, bank, row .. But a little bit
+            // complicated to implement
+            return i;
+        }
+    }
+
+    return 0;
+}
+
+/* Make sure requests aren't starving for too long */
+void DRAM::feed_starving_requests()
+{
+    for (size_t i = 0; i < req_queue.size(); i++) {
+        if ((req_queue[i].q_time >= STARVATION_THRESHOLD) && (req_queue[i].busy == false)) {
+
+            /* Move starving request to next non-busy position in queue */
+            request starved_req = req_queue[i];
+            req_queue.erase(req_queue.begin()+i);
+
+            int8_t pos = queue_get_free_location();
+            req_queue.insert(req_queue.begin()+pos, starved_req);
+        }
+    }
 }

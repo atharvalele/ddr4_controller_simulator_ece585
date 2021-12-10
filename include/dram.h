@@ -58,6 +58,7 @@ private:
         int32_t req_column = -1;
         uint64_t address;
         bool busy = false;
+        std::string req_string;
     };
 
     /* State of DRAM Banks */
@@ -157,6 +158,12 @@ public:
     void queue_remove(uint64_t address);
     bool is_queue_empty();
     bool is_queue_full();
+
+    /* Rescheduling Functions */
+    bool is_req_page_active(request req);
+    int8_t queue_get_free_location();
+    static constexpr uint16_t STARVATION_THRESHOLD = 200;
+    void feed_starving_requests();
 
     /* RAM Operation */
     void do_ram_things();
