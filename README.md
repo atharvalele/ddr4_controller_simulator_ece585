@@ -4,11 +4,16 @@
 ----------------------------------------------------------------------
 
 ### How to run:
-- Assuming you have GCC and Make installed, `cd` to the project directory and run
+- Assuming you have GCC and Make installed, `cd` to the project directory and run make
+- There are a number of targets available
     
-    `make debug` : Build with debug info printed to console
+    `make debug` : First ready, first access with debug info
 
-    `make release` : Build without debug info printed to the console
+    `make release` : First ready, first access without debug info
+
+    `make rescheduling_debug` :     Out-of-order with debug info
+
+    `make rescheduling_release` :    Out-of-order without debug info
 
 - You should now have the executable named `ece585_memory_controller` in the top directory.
 - Run it as follows:
