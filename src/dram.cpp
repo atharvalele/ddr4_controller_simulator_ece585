@@ -437,6 +437,12 @@ void DRAM::clock_advance(uint64_t new_cpu_clock)
     /* Increment clock */
     clock_tick += clock_diff;
 
+    /* Unmark bus busy if enough clock cycles have passed */
+    if (clock_diff >= bus_busy_timer) {
+        bus_busy_timer = 0;
+        bus_busy = false;
+    }
+
     /* Increment all time_since_last_XYZ counters */
     /* ACT */
     for (auto &t: time_since_bank_grp_ACT) {
