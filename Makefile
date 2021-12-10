@@ -46,6 +46,12 @@ debug: all
 release: CXXFLAGS += -O2
 release: all
 
+rescheduling_debug: CXXFLAGS += -O2 -DRESCHEDULING -DRESCHEDULE_DEBUG
+rescheduling_debug: all
+
+rescheduling_release: CXXFLAGS += -O2 -DRESCHEDULING
+rescheduling_release: all
+
 .PHONY: all clean debug release build info
 
 .DEFAULT_GOAL := release
