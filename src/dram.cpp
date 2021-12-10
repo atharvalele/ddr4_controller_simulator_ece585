@@ -311,9 +311,9 @@ void DRAM::bank_fsm(uint8_t bg, uint8_t b)
         } else if (LAST_COMMAND == WR) {
             /* Last command was a WRITE */
             /* Check for tCCD_L / tCCD_S (Where sanity..? Monke.) */
-            if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_grp_WR[bg] <= tCCD_L)) {
+            if ((LAST_WRITTEN_BANK_GRP == bg) && (time_since_bank_grp_WR[bg] < tCCD_L)) {
                 break;
-            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_grp_WR[LAST_WRITTEN_BANK_GRP] <= tCCD_S)) {
+            } else if ((LAST_WRITTEN_BANK_GRP != bg) && (time_since_bank_grp_WR[LAST_WRITTEN_BANK_GRP] < tCCD_S)) {
                 break;
             }
         }
